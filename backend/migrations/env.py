@@ -9,7 +9,7 @@ from app.db.base import Base
 
 config = context.config
 # Escape "%" (e.g. URL-encoded passwords like %40) because Alembic's ini parser treats it as interpolation.
-config.set_main_option("sqlalchemy.url", settings.database_url.replace("%", "%%"))
+config.set_main_option("sqlalchemy.url", settings.sqlalchemy_url.replace("%", "%%"))
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
@@ -17,8 +17,8 @@ target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:
-    context.configure(url=settings.database_url, target_metadata=target_metadata, literal_binds=True,
-                      dialect_opts={"paramstyle": "named"}, render_as_batch=settings.database_url.startswith("sqlite"))
+    context.configure(url=settings.sqlalchemy_url, target_metadata=target_metadata, literal_binds=True,
+                      dialect_opts={"paramstyle": "named"}, render_as_batch=settings.sqlalchemy_url.startswith("sqlite"))
     with context.begin_transaction():
         context.run_migrations()
 

@@ -30,6 +30,15 @@ class Settings(BaseSettings):
     admin_name: str = "Administrator"
 
     @property
+    def sqlalchemy_url(self) -> str:
+        """Accept Supabase's plain postgresql:// URI and use the psycopg 3 driver from requirements.txt."""
+        url = self.database_url
+        for prefix in ("postgresql://", "postgres://"):
+            if url.startswith(prefix):
+                return "postgresql+psycopg://" + url[len(prefix):]
+        return url
+
+    @property
     def cors_origin_list(self) -> list[str]:
         return [o.strip() for o in self.cors_origins.split(",") if o.strip()]
 

@@ -1,13 +1,22 @@
+import os
 from collections.abc import Generator
 
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import Session, sessionmaker
+from sqlalchemy.pool import NullPool
 
 from app.core.config import settings
 
 
 def make_engine(url: str):
     kwargs = {"pool_pre_ping": True}
+    if url.startswith("postgresql"):
+        # Safe with Supabase poolers (no server-side prepared statements).
+        kwargs["connect_args"] = {"prepare_threshold": None}
+        if os.environ.get("VERCEL"):
+            # Serverless: don't hold idle connections per instance; the Supabase pooler does the pooling.
+            kwargs["poolclass"] = NullPool
+            kwargs.pop("pool_pre_ping")
     if url.startswith("sqlite"):
         kwargs = {"connect_args": {"check_same_thread": False}}
     engine = create_engine(url, **kwargs)
@@ -18,7 +27,7 @@ def make_engine(url: str):
     return engine
 
 
-engine = make_engine(settings.database_url)
+engine = make_engine(settings.sqlalchemy_url)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False)
 
 
