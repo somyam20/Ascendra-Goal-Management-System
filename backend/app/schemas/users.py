@@ -47,6 +47,12 @@ class UserCreate(BaseModel):
     avatar_color: str | None = Field(None, pattern=r"^#[0-9a-fA-F]{6}$")
 
 
+class RegisterIn(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+    email: EmailStr
+    password: str = Field(min_length=8, max_length=128)
+
+
 class UserUpdate(BaseModel):
     name: str | None = Field(None, min_length=1, max_length=120)
     email: EmailStr | None = None

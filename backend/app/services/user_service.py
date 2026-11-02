@@ -9,7 +9,7 @@ from app.core.config import settings
 from app.core.security import (create_access_token, hash_password, hash_token, new_opaque_token,
                                verify_password)
 from app.models import Category, PasswordResetToken, RefreshToken, User, UserCategory, UserPreferences
-from app.schemas.users import UserCreate, UserUpdate
+from app.schemas.users import RegisterIn, UserCreate, UserUpdate
 from app.utils.common import audit, not_found, paginate
 
 AVATAR_COLORS = ["#6366f1", "#ec4899", "#14b8a6", "#f59e0b", "#8b5cf6", "#ef4444", "#0ea5e9", "#22c55e"]
@@ -36,6 +36,17 @@ def login(db: Session, email: str, password: str) -> dict:
         raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Incorrect email or password")
     if not user.is_active:
         raise HTTPException(status.HTTP_403_FORBIDDEN, "This account has been deactivated")
+    return _issue_tokens(db, user)
+
+
+def register(db: Session, data: RegisterIn) -> dict:
+    """Self-service sign-up: always creates a regular USER, who then appears in the directory,
+    dashboard and leaderboard automatically (all of which are driven by the users table)."""
+    from app.services.settings_service import get_app_settings
+
+    if not get_app_settings(db)["signup_enabled"]:
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Sign-up is currently closed. Please ask an administrator.")
+    user = create_user(db, None, UserCreate(name=data.name, email=data.email, password=data.password, role="USER"))
     return _issue_tokens(db, user)
 
 

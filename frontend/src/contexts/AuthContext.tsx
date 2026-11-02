@@ -7,6 +7,7 @@ interface AuthCtx {
   user: User | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<User>;
+  register: (name: string, email: string, password: string) => Promise<User>;
   logout: () => Promise<void>;
   refreshMe: () => Promise<void>;
 }
@@ -34,6 +35,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return pair.user;
   }, []);
 
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    const pair = await authApi.register(name, email, password);
+    tokens.set(pair);
+    setUser(pair.user);
+    return pair.user;
+  }, []);
+
   const logout = useCallback(async () => {
     const rt = tokens.refresh;
     try { if (rt) await authApi.logout(rt); } catch { /* already invalid */ }
@@ -41,7 +49,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(null);
   }, []);
 
-  const value = useMemo(() => ({ user, loading, login, logout, refreshMe }), [user, loading, login, logout, refreshMe]);
+  const value = useMemo(() => ({ user, loading, login, register, logout, refreshMe }), [user, loading, login, register, logout, refreshMe]);
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

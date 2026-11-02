@@ -63,6 +63,7 @@ class AuditOut(BaseModel):
 class AppSettingsModel(BaseModel):
     leaderboard_min_evaluated: int = Field(3, ge=0, le=100)
     ai_enabled: bool = True
+    signup_enabled: bool = True
     morning_hour: int = Field(8, ge=0, le=23)
     evening_hour: int = Field(20, ge=0, le=23)
     weekly_review_day: int = Field(6, ge=0, le=6)

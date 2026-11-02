@@ -53,3 +53,22 @@ def test_password_reset_flow(client, admin_h, alice):
     assert client.post("/api/v1/auth/reset-password", json={"token": token, "new_password": "NewPass@99"}).status_code == 204
     login(client, "alice@test.local", "NewPass@99")
     assert client.post("/api/v1/auth/reset-password", json={"token": token, "new_password": "Again@999"}).status_code == 400
+
+
+def test_self_signup_joins_group(client, admin_h):
+    r = client.post("/api/v1/auth/register", json={"name": "Newbie", "email": "new@test.local", "password": "Password@1"})
+    assert r.status_code == 201 and r.json()["user"]["role"] == "USER"
+    h = {"Authorization": f"Bearer {r.json()['access_token']}"}
+    assert "Newbie" in [u["name"] for u in client.get("/api/v1/users/directory", headers=h).json()]
+    assert [u["name"] for u in client.get("/api/v1/dashboard/users", headers=h).json()] == ["Newbie"]
+    assert client.get("/api/v1/categories", headers=h).json()
+    assert client.post("/api/v1/auth/register", json={"name": "Dup", "email": "NEW@test.local", "password": "Password@1"}).status_code == 409
+    assert client.post("/api/v1/auth/register", json={"name": "Weak", "email": "w@test.local", "password": "short"}).status_code == 422
+    login(client, "new@test.local", "Password@1")
+
+
+def test_signup_can_be_closed(client, admin_h):
+    s = client.get("/api/v1/admin/settings", headers=admin_h).json()
+    client.put("/api/v1/admin/settings", headers=admin_h, json={**s, "signup_enabled": False})
+    r = client.post("/api/v1/auth/register", json={"name": "X", "email": "x@test.local", "password": "Password@1"})
+    assert r.status_code == 403

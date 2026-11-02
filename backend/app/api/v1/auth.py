@@ -1,18 +1,27 @@
-from fastapi import APIRouter, Depends, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
 from sqlalchemy.orm import Session
 
 from app.core.permissions import get_current_user
 from app.db.session import get_db
 from app.models import User
-from app.schemas.users import ChangePasswordIn, LoginIn, RefreshIn, ResetPasswordIn, TokenPair, UserOut
+from app.schemas.users import (ChangePasswordIn, LoginIn, RefreshIn, RegisterIn, ResetPasswordIn, TokenPair,
+                               UserOut)
 from app.services import user_service
+from app.utils.common import RateLimiter
 
 router = APIRouter(prefix="/auth", tags=["auth"])
+signup_limiter = RateLimiter(10)  # sign-ups per hour per client address
 
 
 @router.post("/login", response_model=TokenPair)
 def login(body: LoginIn, db: Session = Depends(get_db)):
     return user_service.login(db, body.email, body.password)
+
+
+@router.post("/register", response_model=TokenPair, status_code=status.HTTP_201_CREATED)
+def register(body: RegisterIn, request: Request, db: Session = Depends(get_db)):
+    signup_limiter.check(request.client.host if request.client else "unknown")
+    return user_service.register(db, body)
 
 
 @router.post("/refresh", response_model=TokenPair)

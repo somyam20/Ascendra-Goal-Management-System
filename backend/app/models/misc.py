@@ -41,6 +41,7 @@ class AppSetting(Base):
 DEFAULT_APP_SETTINGS = {
     "leaderboard_min_evaluated": 3,
     "ai_enabled": True,
+    "signup_enabled": True,
     "morning_hour": 8,
     "evening_hour": 20,
     "weekly_review_day": 6,

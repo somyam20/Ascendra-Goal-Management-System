@@ -432,6 +432,7 @@ export interface AuditLog {
 export interface AppSettings {
   leaderboard_min_evaluated: number;
   ai_enabled: boolean;
+  signup_enabled: boolean;
   morning_hour: number;
   evening_hour: number;
   weekly_review_day: number;

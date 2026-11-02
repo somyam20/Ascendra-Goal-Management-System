@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -85,7 +85,8 @@ export default function Login() {
               {isSubmitting ? 'Signing in…' : <>Sign in <ArrowRight className="h-4 w-4" /></>}
             </button>
           </form>
-          <p className="mt-5 text-center text-xs text-subtle">Got a reset code from your admin? <a className="font-semibold text-primary hover:underline" href="/reset-password">Reset password</a></p>
+          <p className="mt-5 text-center text-sm text-subtle">New here? <Link className="font-semibold text-primary hover:underline" to="/signup">Create your account</Link></p>
+          <p className="mt-2 text-center text-xs text-subtle">Got a reset code from your admin? <a className="font-semibold text-primary hover:underline" href="/reset-password">Reset password</a></p>
         </div>
       </div>
     </div>

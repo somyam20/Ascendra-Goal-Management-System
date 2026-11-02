@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { AppLayout } from '@/components/layout/AppLayout';
 import { EmojiLoader, FullScreenLoader } from '@/components/common/EmojiLoader';
 import Login from '@/pages/Login';
+import Signup from '@/pages/Signup';
 import ResetPassword from '@/pages/ResetPassword';
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
@@ -26,6 +27,7 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
       <Route path="/reset-password" element={<ResetPassword />} />
       <Route element={<RequireAuth><AppLayout /></RequireAuth>}>
         <Route index element={page(<Dashboard />)} />

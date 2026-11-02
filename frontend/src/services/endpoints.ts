@@ -13,6 +13,8 @@ export interface PeriodParams { period?: Period; start?: string; end?: string }
 
 export const authApi = {
   login: (email: string, password: string) => d(api.post<TokenPair>('/auth/login', { email, password })),
+  register: (name: string, email: string, password: string) =>
+    d(api.post<TokenPair>('/auth/register', { name, email, password })),
   logout: (refresh_token: string) => api.post('/auth/logout', { refresh_token }),
   me: () => d(api.get<User>('/auth/me')),
   changePassword: (current_password: string, new_password: string) =>
